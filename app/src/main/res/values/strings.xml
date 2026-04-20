@@ -6,6 +6,8 @@
     <string name="lista_compra">Lista de la Compra</string>
     <string name="ideas_comer">Ideas Para Comer</string>
     <string name="cambiar_idioma">Cambiar Idioma (EN/ES)</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="miperfil">Mi perfil</string>
 
     <string name="lunes">Lunes</string>
     <string name="martes">Martes</string>
@@ -49,4 +51,24 @@
 
     <string name="guardar">Guardar</string>
     <string name="cancelar">Cancelar</string>
+
+    <string name="bienvenido">¡Bienvenido/a!</string>
+    <string name="usuario">Introduce tu nombre de usuario</string>
+    <string name="contrasena">Contraseña</string>
+    <string name="iniciar_s">Iniciar sesión</string>
+    <string name="registar">Registrar</string>
+    <string name="hola">:p Hola</string>
+    <string name="vacia_c">La contraseña no puede estar vacía</string>
+    <string name="vacio_u">El nombre de usuario no puede estar vacío</string>
+
+    <string name="supermercados">Supermercados</string>
+    <string name="perfil">Mi perfil</string>
+    <string name="cambios_guardados">Cambios guardados</string>
+    <string name="guardando">Guardando...</string>
+    <string name="permisos_denegados">Permisos denegados</string>
+    <string name="hacer_foto">¡Hazte una foto!</string>
+    <string name="guardar_cambios">Guardar cambios</string>
+    <string name="error_conexion">Error de conexión</string>
+    <string name="error_respuesta">Error al procesar respuesta</string>
+    <string name="lista_vacia">¡¡La lista está vacía!!</string>
 </resources>

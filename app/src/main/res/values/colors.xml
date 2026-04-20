@@ -7,4 +7,9 @@
     <color name="verde">#C6D9BF</color>
     <color name="grisclaro">#DEDDDD</color>
     <color name="azulraro">#839FA2</color>
+    <color name="rosaoscuro">#6F3C6D</color>
+    <color name="light_blue_50">#FFE1F5FE</color>
+    <color name="light_blue_200">#FF81D4FA</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
 </resources>

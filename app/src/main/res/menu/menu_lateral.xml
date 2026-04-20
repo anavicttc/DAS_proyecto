@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
-
+        <item
+            android:id="@+id/nav_perfil"
+            android:icon="@android:drawable/ic_menu_camera"
+            android:title="@string/perfil"
+            android:iconTint="@color/rosa"
+            android:fontFamily="@font/playfair_semibolditalic"/>
         <item
             android:id="@+id/nav_menu_semanal"
             android:icon="@android:drawable/ic_menu_day"
@@ -15,6 +20,13 @@
             android:title="@string/lista_compra"
             android:fontFamily="@font/playfair_semibolditalic"/>
         <item
+            android:id="@+id/nav_supermercados"
+            android:icon="@android:drawable/ic_menu_mapmode"
+            android:iconTint="@color/rosa"
+            android:title="@string/supermercados"
+            android:fontFamily="@font/playfair_semibolditalic"/>
+
+        <item
             android:id="@+id/nav_ideas_comer"
             android:icon="@android:drawable/ic_menu_info_details"
             android:iconTint="@color/rosa"
@@ -25,6 +37,12 @@
             android:icon="@android:drawable/ic_menu_manage"
             android:iconTint="@color/rosa"
             android:title="@string/cambiar_idioma"
+            android:fontFamily="@font/playfair_semibolditalic"/>
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@android:drawable/ic_lock_power_off"
+            android:iconTint="@color/rosa"
+            android:title="@string/logout"
             android:fontFamily="@font/playfair_semibolditalic"/>
     </group>
 </menu>

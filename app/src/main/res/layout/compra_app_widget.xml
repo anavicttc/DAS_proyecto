@@ -1,0 +1,26 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    style="@style/Widget.DAS_proyecto1.AppWidget.Container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/Theme.AppCompat.Light.DarkActionBar.AppWidgetContainer">
+
+    <TextView
+        android:id="@+id/appwidget_text"
+        style="@style/Widget.DAS_proyecto1.AppWidget.InnerView"
+        android:layout_width="387dp"
+        android:layout_height="707dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/rosaclaro"
+        android:contentDescription="Ñam"
+        android:fontFamily="@font/playfair_semibolditalic"
+        android:text="Ñam"
+        android:textSize="19dp"
+        android:textStyle="bold|italic" />
+</RelativeLayout>

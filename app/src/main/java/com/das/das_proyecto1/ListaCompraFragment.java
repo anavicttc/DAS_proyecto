@@ -41,6 +41,7 @@ public class ListaCompraFragment extends Fragment {
             if (!nombreProducto.isEmpty()) {
                 //guardamos en la bd
                 bdHelper.insertarProducto(nombreProducto);
+                actualizarWidget();
                 etNuevoProducto.setText(""); //limpiar caja
                 cargarProductos(); //recargar
 
@@ -60,7 +61,20 @@ public class ListaCompraFragment extends Fragment {
         adapter = new CompraAdapter(listaProductos);
         recyclerView.setAdapter(adapter);
     }
+    private void actualizarWidget(){
+        // --- FORZAR ACTUALIZACIÓN DEL WIDGET ---
+        android.content.Intent intentWidget = new android.content.Intent(requireContext(), CompraAppWidget.class);
+        intentWidget.setAction(android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE);
 
+        // Obtener los IDs de todos los widgets de la compra que el usuario tenga en la pantalla
+        int[] ids = android.appwidget.AppWidgetManager.getInstance(requireActivity().getApplication())
+                .getAppWidgetIds(new android.content.ComponentName(requireActivity().getApplication(), CompraAppWidget.class));
+
+        intentWidget.putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+
+        // Enviar el aviso para que el widget ejecute su onUpdate() inmediatamente
+        requireContext().sendBroadcast(intentWidget);
+    }
     //notificación local cuando añadimos producto a la lista
     private void programarNotificacion(String producto) {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -99,6 +113,7 @@ public class ListaCompraFragment extends Fragment {
                             //recargar la página
                             cargarProductos();
                             Toast.makeText(requireContext(), R.string.producto_eliminado, Toast.LENGTH_SHORT).show();
+                            actualizarWidget();
                         })
                         .setNegativeButton(R.string.cancelar, null)
                         .show();

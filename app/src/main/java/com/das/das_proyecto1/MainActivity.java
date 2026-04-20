@@ -7,13 +7,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.navigation.NavigationView;
@@ -24,6 +30,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.drawer_layout), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         //leer el idioma de SharedPreferences
         android.content.SharedPreferences prefs = getSharedPreferences("MisPreferencias", MODE_PRIVATE);
         String idiomaGuardado = prefs.getString("idioma", "es"); //español por defecto
@@ -52,13 +66,23 @@ public class MainActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(item -> {
             Fragment fragmentSeleccionado = null;
             int itemId = item.getItemId();
-            if (itemId == R.id.nav_menu_semanal) {//si tocamos menú semanal que nos lleve ahí
+            if(itemId==R.id.nav_perfil){
+                fragmentSeleccionado= new PerfilFragment();
+                toolbar.setTitle(getString(R.string.miperfil));
+            }
+            else if (itemId == R.id.nav_menu_semanal) {//si tocamos menú semanal que nos lleve ahí
                 fragmentSeleccionado = new MenuSemanalFragment();
                 toolbar.setTitle(getString(R.string.menu_semanal));
             } else if (itemId == R.id.nav_lista_compra) {
                 fragmentSeleccionado = new ListaCompraFragment();
                 toolbar.setTitle(getString(R.string.lista_compra));
-            } else if (itemId == R.id.nav_ideas_comer) {
+            }
+            else if (itemId == R.id.nav_supermercados) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new SupermercadosFragment())
+                        .commit();
+            }
+            else if (itemId == R.id.nav_ideas_comer) {
                 fragmentSeleccionado = new IdeasComerFragment();//ideas para comer
                 toolbar.setTitle(getString(R.string.ideas_comer));
             } else if (itemId==R.id.nav_idioma) {//cambiar el idioma
@@ -73,6 +97,17 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
+                return true;
+            } else if (itemId==R.id.nav_logout) {
+                Intent intent = new Intent(MainActivity.this, Login.class);
+
+                // 2. Añadimos Flags para borrar el historial de pantallas y que no pueda hacer "Back"
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                // 3. Saltamos y destruimos la MainActivity actual
+                startActivity(intent);
+                finish();
+
                 return true;
             }
 
@@ -114,18 +149,13 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
-            } else {
-                lanzarNotificacionPrueba();
             }
-        } else {
-            lanzarNotificacionPrueba();
+        }
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String nombre = extras.getString("nombre_usuario");
+            Toast.makeText(this, getString(R.string.hola) + nombre + "!", Toast.LENGTH_LONG).show();
         }
     }
-    //lanzar notificación a los 5s de abrir la app (después de haber aceptado las notis y cerrarla)
-    private void lanzarNotificacionPrueba() {
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Intent intent = new Intent(MainActivity.this, NotificacionPrincipal.class);
-            sendBroadcast(intent); //receiver
-        }, 5000);//5s
-    }
+
 }
