@@ -39,7 +39,7 @@ public class PerfilFragment extends Fragment {
     private EditText etNombre, etPassword;
     private Uri uriImagen;
     private ActivityResultLauncher<Intent> takePictureLauncher;
-    private Bitmap bitmapFotoActual; // Este contendrá la imagen ya escalada [cite: 15]
+    private Bitmap bitmapFotoActual;
     private ActivityResultLauncher<String> pedirPermisoCamara;
     private static final String TAG = "PERFIL_DEBUG";
 
