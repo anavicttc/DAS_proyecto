@@ -1,1 +1,1 @@
-Primer entregable de Desarrollo Avanzado del Software.
+Proyecto Desarrollo Avanzado del Software.
