@@ -23,8 +23,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-// ✅ IMPORTS NUEVOS (Places SDK)
+//para places
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.CircularBounds;
 import com.google.android.libraries.places.api.model.LocationRestriction;
@@ -40,23 +39,21 @@ public class SupermercadosFragment extends Fragment implements OnMapReadyCallbac
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
     private ActivityResultLauncher<String[]> locationPermissionRequest;
-
-    // ✅ Cliente de Places
+    //places necesita cliente
     private PlacesClient placesClient;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_supermercados, container, false);
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
-        // ✅ Inicializar Places (UNA SOLA VEZ)
+        //inicializamos places
         String apiKey = "AIzaSyATHJJH868G88__vrdsQdHikl2CIzTaOFY";
         if (!Places.isInitialized()) {
             Places.initialize(requireContext(), apiKey);
         }
         placesClient = Places.createClient(requireContext());
-
+        //pedimos permisos
         locationPermissionRequest = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
             Boolean fineLocationGranted = null;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -65,10 +62,9 @@ public class SupermercadosFragment extends Fragment implements OnMapReadyCallbac
             if (fineLocationGranted != null && fineLocationGranted) {
                 activarUbicacionReal();
             } else {
-                Toast.makeText(getContext(), "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.permisos_denegados), Toast.LENGTH_SHORT).show();
             }
         });
-
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
@@ -93,7 +89,6 @@ public class SupermercadosFragment extends Fragment implements OnMapReadyCallbac
             });
         }
     }
-
     private void activarUbicacionReal() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
@@ -102,37 +97,33 @@ public class SupermercadosFragment extends Fragment implements OnMapReadyCallbac
                 if (location != null) {
                     LatLng miPos = new LatLng(location.getLatitude(), location.getLongitude());
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(miPos, 15f));
-
-                    // ✅ NUEVA LLAMADA (SDK)
+                    //llamada para que nos busque los supermercados
                     buscarSupermercadosSDK(location.getLatitude(), location.getLongitude());
                 }
             });
         }
     }
-
-    // ✅ MÉTODO NUEVO (sustituye al HTTP)
-
-    private void buscarSupermercadosSDK(double lat, double lng) {
-
+    private void buscarSupermercadosSDK(double lat, double lng) { //métod para buscar los supermercados con places
+        //definimos el punto de partida (donde estamos)
         LatLng latLng = new LatLng(lat, lng);
-
+        //fijamos el radio de búsqueda
         LocationRestriction restriction =
                 CircularBounds.newInstance(latLng, 1000);
-
+        //datos que queremos que la api nos devuelva
         List<Place.Field> placeFields = Arrays.asList(
                 Place.Field.NAME,
                 Place.Field.LAT_LNG
         );
-
+        //petición de búsqueda
         SearchNearbyRequest request = SearchNearbyRequest.builder(restriction, placeFields)
                 .setIncludedTypes(Arrays.asList("supermarket"))
                 .build();
-
+        //ejecutamos la búsqueda
         placesClient.searchNearby(request)
-                .addOnSuccessListener(response -> {
-
+                .addOnSuccessListener(response -> {//petición exitosa
+                    //limpiamos funtos anteriores
                     mMap.clear();
-
+                    //añadimos los elementos devueltos de la lista al mapa
                     for (Place place : response.getPlaces()) {
                         if (place.getLatLng() != null) {
                             mMap.addMarker(new MarkerOptions()
@@ -140,12 +131,11 @@ public class SupermercadosFragment extends Fragment implements OnMapReadyCallbac
                                     .title(place.getName()));
                         }
                     }
-
                     Toast.makeText(getContext(),
-                            "Supermercados: " + response.getPlaces().size(),
+                            getString(R.string.supermercados) + response.getPlaces().size(),
                             Toast.LENGTH_SHORT).show();
                 })
-                .addOnFailureListener(e -> {
+                .addOnFailureListener(e -> {//petición fallida
                     Toast.makeText(getContext(),
                             "Error: " + e.getMessage(),
                             Toast.LENGTH_LONG).show();

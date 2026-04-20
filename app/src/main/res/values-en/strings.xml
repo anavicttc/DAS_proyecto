@@ -56,7 +56,7 @@
     <string name="contrasena">Password</string>
     <string name="iniciar_s">Login</string>
     <string name="registar">Register</string>
-    <string name="hola">:p Hi</string>
+    <string name="hola">:p Hi, </string>
     <string name="vacia_c">The password cannot be empty</string>
     <string name="vacio_u">The username cannot be empty</string>
 
@@ -70,5 +70,5 @@
     <string name="error_conexion">Conection error</string>
     <string name="error_respuesta">Error processing response</string>
     <string name="lista_vacia">The list is empty!!</string>
-
+    <string name="app_widget_description">Shopping List</string>
 </resources>

@@ -47,14 +47,12 @@ public class PerfilFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_perfil, container, false);
 
-        // 1. Inicializar vistas
         imgPerfil = root.findViewById(R.id.img_perfil);
         etNombre = root.findViewById(R.id.et_nombre_usuario);
         etPassword = root.findViewById(R.id.et_password);
         Button btnHacerFoto = root.findViewById(R.id.btn_hacer_foto);
         Button btnGuardar = root.findViewById(R.id.btn_guardar_perfil);
 
-        // --- CARGAR DATOS DEL USUARIO ACTUAL (SharedPreferences) ---
         android.content.SharedPreferences prefs = requireActivity().getSharedPreferences("MisPreferencias", android.content.Context.MODE_PRIVATE);
         String nombreGuardado = prefs.getString("nombre_usuario", "Mi Usuario");
         String passGuardada = prefs.getString("password_usuario", "");
@@ -63,16 +61,26 @@ public class PerfilFragment extends Fragment {
         etNombre.setText(nombreGuardado);
         etPassword.setText(passGuardada);
 
-        // --- DESCARGAR LA IMAGEN DEL SERVIDOR CON GLIDE (Apuntes Pág. 30) ---
-        // Se añade timestamp para evitar problemas de caché al actualizar la foto [cite: 30]
-        String direccion = "http://34.12.153.133:81/perfil_" + idUsuario + ".jpg?v=" + System.currentTimeMillis();
+        //descarganmos imagen del servidor
+        String direccion = "http://34.175.63.186:81/perfil_" + idUsuario + ".jpg?v=" + System.currentTimeMillis();
 
-        Log.d("GLIDE_DEBUG", "Intentando cargar: " + direccion);
-        com.bumptech.glide.Glide.with(requireContext())
-                .load(direccion)
-                .into(imgPerfil);
+        new Thread(() -> {
+            try {
+                java.net.URL destino = new java.net.URL(direccion);
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) destino.openConnection();
+                int responseCode = conn.getResponseCode();
+                if (responseCode == java.net.HttpURLConnection.HTTP_OK) {
+                    Bitmap elBitmap = BitmapFactory.decodeStream(conn.getInputStream());
+                    requireActivity().runOnUiThread(() -> {
+                        imgPerfil.setImageBitmap(elBitmap);
+                    });
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
 
-        // 2. Configurar el launcher para recoger la foto y ESCALARLA [cite: 15]
+        //recoger foto y escalar
         takePictureLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -80,11 +88,10 @@ public class PerfilFragment extends Fragment {
                         try {
                             int reqWidth = 500;
                             int reqHeight = 500;
-                            Log.d(TAG, "URI imagen: " + uriImagen);
-                            // 🥇 PASO 1: Leer dimensiones sin cargar la imagen
+                            //Log.d(TAG, "URI imagen: " + uriImagen);
+                            // leemos dimensiones
                             BitmapFactory.Options options = new BitmapFactory.Options();
                             options.inJustDecodeBounds = true;
-
                             InputStream is = requireActivity()
                                     .getContentResolver()
                                     .openInputStream(uriImagen);
@@ -94,21 +101,18 @@ public class PerfilFragment extends Fragment {
 
                             int width = options.outWidth;
                             int height = options.outHeight;
-                            Log.d(TAG, "Dimensiones originales: " + width + "x" + height);
-                            // 🥈 PASO 2: Calcular inSampleSize
+                            //Log.d(TAG, "Dimensiones originales: " + width + "x" + height);
+                            //calcular inSampleSize
                             int inSampleSize = 1;
-
                             if (height > reqHeight || width > reqWidth) {
                                 int halfHeight = height / 2;
                                 int halfWidth = width / 2;
-
                                 while ((halfHeight / inSampleSize) >= reqHeight &&
                                         (halfWidth / inSampleSize) >= reqWidth) {
                                     inSampleSize *= 2;
                                 }
                             }
-
-                            // 🥉 PASO 3: Cargar imagen reducida
+                            //cargamos imagen
                             options.inJustDecodeBounds = false;
                             options.inSampleSize = inSampleSize;
 
@@ -119,52 +123,43 @@ public class PerfilFragment extends Fragment {
                             Bitmap bitmapReducido = BitmapFactory.decodeStream(is2, null, options);
                             is2.close();
 
-                            // (Opcional) Ajuste fino para que encaje EXACTO en 500x500 manteniendo ratio
+                            //para que encaje exáctamente
                             int anchoImagen = bitmapReducido.getWidth();
                             int altoImagen = bitmapReducido.getHeight();
-
                             float ratioImagen = (float) anchoImagen / (float) altoImagen;
                             float ratioDestino = (float) reqWidth / (float) reqHeight;
-
                             int anchoFinal = reqWidth;
                             int altoFinal = reqHeight;
-
                             if (ratioDestino > ratioImagen) {
                                 anchoFinal = (int) (reqHeight * ratioImagen);
                             } else {
                                 altoFinal = (int) (reqWidth / ratioImagen);
                             }
-
                             bitmapFotoActual = Bitmap.createScaledBitmap(
                                     bitmapReducido,
                                     anchoFinal,
                                     altoFinal,
                                     true
                             );
-                            Log.d(TAG, "inSampleSize: " + inSampleSize);
-
-                            // Mostrar en pantalla
+                            //Log.d(TAG, "inSampleSize: " + inSampleSize);
+                            //mostramos
                             imgPerfil.setImageBitmap(bitmapFotoActual);
-                            Log.d(TAG, "Bitmap reducido: " + bitmapReducido.getWidth() + "x" + bitmapReducido.getHeight());
-
-                            // Liberar memoria
+                            //Log.d(TAG, "Bitmap reducido: " + bitmapReducido.getWidth() + "x" + bitmapReducido.getHeight());
                             bitmapReducido.recycle();
-
                         } catch (Exception e) {
                             Log.e(TAG, "Error cargando imagen", e);
                         }
                     }
                 });
 
-        // Launcher para permisos (Cámara)
+        //pedir permisos
         pedirPermisoCamara = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
                     if (isGranted) { abrirCamara(); }
                     else { Toast.makeText(getContext(), getString(R.string.permisos_denegados), Toast.LENGTH_SHORT).show(); }
                 });
-
-        // 3. Eventos
+        //listeners
         btnHacerFoto.setOnClickListener(v -> {
             if (androidx.core.content.ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 abrirCamara();
@@ -172,9 +167,7 @@ public class PerfilFragment extends Fragment {
                 pedirPermisoCamara.launch(Manifest.permission.CAMERA);
             }
         });
-
         btnGuardar.setOnClickListener(v -> subirPerfilAlServidor());
-
         return root;
     }
 
@@ -182,11 +175,9 @@ public class PerfilFragment extends Fragment {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String nombrefich = "IMG_" + timeStamp + "_";
         File directorio = requireActivity().getFilesDir();
-
         try {
             File fichImg = File.createTempFile(nombrefich, ".jpg", directorio);
             uriImagen = FileProvider.getUriForFile(requireContext(), "com.das.das_proyecto1.provider", fichImg);
-
             Intent elIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             elIntent.putExtra(MediaStore.EXTRA_OUTPUT, uriImagen);
             takePictureLauncher.launch(elIntent);
@@ -194,29 +185,24 @@ public class PerfilFragment extends Fragment {
             e.printStackTrace();
         }
     }
-
     private void subirPerfilAlServidor() {
         String nuevoNombre = etNombre.getText().toString();
         String nuevaPass = etPassword.getText().toString();
-
         android.content.SharedPreferences prefs = requireActivity().getSharedPreferences("MisPreferencias", android.content.Context.MODE_PRIVATE);
         String idUsuario = prefs.getString("id_usuario", "1");
-
+        //informamos
         Toast.makeText(getContext(), getString(R.string.guardando), Toast.LENGTH_SHORT).show();
 
         new Thread(() -> {
             try {
-                // Convertir el bitmap ESCALADO a Base64 [cite: 20]
+                //convertimos el bitmap a base64
                 String fotoEnBase64 = "";
                 if (bitmapFotoActual != null) {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    // Calidad 80% es suficiente para una imagen de 500px
                     bitmapFotoActual.compress(Bitmap.CompressFormat.JPEG, 80, stream);
                     byte[] fototransformada = stream.toByteArray();
                     fotoEnBase64 = Base64.encodeToString(fototransformada, Base64.DEFAULT);
                 }
-
-                // Parámetros URL (Apuntes Pág. 20) [cite: 20, 21, 22]
                 Uri.Builder builder = new Uri.Builder()
                         .appendQueryParameter("id_usuario", idUsuario)
                         .appendQueryParameter("nombre", nuevoNombre)
@@ -224,7 +210,7 @@ public class PerfilFragment extends Fragment {
                         .appendQueryParameter("imagen", fotoEnBase64);
                 String parametrosURL = builder.build().getEncodedQuery();
 
-                java.net.URL url = new java.net.URL("http://34.12.153.133:81/actualizar_perfil.php");
+                java.net.URL url = new java.net.URL("http://34.175.63.186:81/actualizar_perfil.php");
                 java.net.HttpURLConnection conexion = (java.net.HttpURLConnection) url.openConnection();
                 conexion.setRequestMethod("POST");
                 conexion.setDoOutput(true);
@@ -243,14 +229,12 @@ public class PerfilFragment extends Fragment {
 
                 String linea;
                 StringBuilder respuesta = new StringBuilder();
-
                 while ((linea = reader.readLine()) != null) {
                     respuesta.append(linea);
                 }
 
                 reader.close();
-
-                Log.d(TAG, "Respuesta servidor: " + respuesta.toString());
+                //Log.d(TAG, "Respuesta servidor: " + respuesta.toString());
                 if (responseCode == java.net.HttpURLConnection.HTTP_OK) {
                     requireActivity().runOnUiThread(() -> {
                         Toast.makeText(getContext(), getString(R.string.cambios_guardados), Toast.LENGTH_SHORT).show();

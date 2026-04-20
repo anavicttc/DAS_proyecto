@@ -25,7 +25,7 @@ public class ConexionBDWebService extends Worker {
         String contrasena = getInputData().getString("contrasena");
         String tipo = getInputData().getString("tipo"); //si es inicio de sesión o registro
 
-        String dir = "http://34.12.153.133:81/" + tipo + ".php";
+        String dir = "http://34.175.63.186:81/" + tipo + ".php";
         HttpURLConnection urlConnection = null;
         String rdo = "";
         try {

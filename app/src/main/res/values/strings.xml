@@ -57,7 +57,7 @@
     <string name="contrasena">Contraseña</string>
     <string name="iniciar_s">Iniciar sesión</string>
     <string name="registar">Registrar</string>
-    <string name="hola">:p Hola</string>
+    <string name="hola">:p Hola, </string>
     <string name="vacia_c">La contraseña no puede estar vacía</string>
     <string name="vacio_u">El nombre de usuario no puede estar vacío</string>
 
@@ -71,4 +71,5 @@
     <string name="error_conexion">Error de conexión</string>
     <string name="error_respuesta">Error al procesar respuesta</string>
     <string name="lista_vacia">¡¡La lista está vacía!!</string>
+    <string name="app_widget_description">Lista de la compra</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.das.das_proyecto1;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -48,7 +47,6 @@ public class Login extends AppCompatActivity {
     private void lanzarWorker(String tipo) {
         String u = usuario.getText().toString().trim();
         String c = contrasena.getText().toString().trim();
-
         //comprobamos que los campos no estén vacíos
         if (u.isEmpty()) {
             usuario.setError(getString(R.string.vacio_u));
@@ -60,17 +58,14 @@ public class Login extends AppCompatActivity {
             contrasena.requestFocus();
             return;
         }
-
         Data datos = new Data.Builder()
                 .putString("usuario", u)
                 .putString("contrasena", c)
                 .putString("tipo", tipo)
                 .build();
-
         OneTimeWorkRequest otwr = new OneTimeWorkRequest.Builder(ConexionBDWebService.class)
                 .setInputData(datos)
                 .build();
-
         WorkManager.getInstance(this).getWorkInfoByIdLiveData(otwr.getId())
                 .observe(this, workInfo -> {
                     if (workInfo != null && workInfo.getState().isFinished()) {
@@ -85,8 +80,6 @@ public class Login extends AppCompatActivity {
             Toast.makeText(this, getString(R.string.error_conexion), Toast.LENGTH_SHORT).show();
             return;
         }
-        //Log.d("MI_CONEXION", "El servidor ha respondido esto: " + result);
-
         try {
             //parseamos
             JSONParser parser = new JSONParser();
@@ -96,21 +89,17 @@ public class Login extends AppCompatActivity {
             String mensaje = (String) json.get("mensaje");
 
             if ("ok".equals(status)) {
-                //Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show();
                 //guardar datos del usuario
                 android.content.SharedPreferences prefs = getSharedPreferences("MisPreferencias", android.content.Context.MODE_PRIVATE);
                 android.content.SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("nombre_usuario", usuario.getText().toString());
                 editor.putString("password_usuario", contrasena.getText().toString());
-
-                // OJO: Intentamos recoger el ID de la base de datos.
-                // Si tu PHP de login aún no devuelve el "id_usuario", usará "1" temporalmente.
-                String idUsuario = "1";
-                if (json.containsKey("id_usuario")) {
-                    // Lo convertimos a String por si el PHP lo manda como número
-                    idUsuario = String.valueOf(json.get("id_usuario"));
+                if (json.containsKey("id_usuario") && json.get("id_usuario") != null) {
+                    String idUsuario = String.valueOf(json.get("id_usuario"));
+                    editor.putString("id_usuario", idUsuario);
+                } else {
+                    Log.e("ERROR_LOGIN", "revisar login.php");
                 }
-                editor.putString("id_usuario", idUsuario);
                 editor.apply();
 
                 //login correcto --> mainactivity

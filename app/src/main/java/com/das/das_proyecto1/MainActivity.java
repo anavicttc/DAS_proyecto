@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 toolbar.setTitle(getString(R.string.lista_compra));
             }
             else if (itemId == R.id.nav_supermercados) {
+                toolbar.setTitle(getString(R.string.supermercados));
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new SupermercadosFragment())
                         .commit();

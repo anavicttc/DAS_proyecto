@@ -2,7 +2,7 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/app_widget_description"
     android:initialLayout="@layout/compra_app_widget"
-    android:previewImage="@drawable/example_appwidget_preview"
+    android:previewImage="@drawable/gatohamburguesa"
     android:resizeMode="horizontal|vertical"
     android:minWidth="250dp"
     android:minHeight="110dp"
